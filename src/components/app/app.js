@@ -5,27 +5,36 @@ import ItemList from '../item-list/item-list';
 import PersonDetails from '../person-details/person-details';
 
 import './app.css';
+import ErrorIndicator from '../error-indicator/error-indicator';
 
 export default class App extends Component{
     state = {
-        selectedPerson: null
+        selectedPerson: 5,
+        hasError: false
     };
 
     onPersonSelected = (id) => {
         this.setState({
-            showRandomPlanet: true,
             selectedPerson:id
         })
     };
 
+
+    componentDidCatch(){
+        console.log('componentDidCatch');
+        this.setState({
+            hasError:true
+        })
+    }
+
     render(){
-        const planet = this.state.showRandomPlanet ? <RandomPlanet/> : null;
+        if(this.state.hasError){ 
+            return <ErrorIndicator/>
+        }
         return (
             <div className="stardb-app">
                 <Header/>
-                {planet}
-
-                
+                <RandomPlanet/> 
                 <div className="row mb2">
                     <div className="col-md-6">
                         <ItemList onItemSelected={this.onPersonSelected}/>
