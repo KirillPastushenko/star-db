@@ -4,39 +4,25 @@ import SwapiService from '../../services/swapi-service';
 import Spinner from '../spinner/spinner';
 
 
-export default class ItemList extends Component{
-    state = {
-        peopleList: []
-    };
+class ItemList extends Component{
 
-    swapiService = new SwapiService();
-
-    componentDidMount(){
-        this.swapiService
-            .getAllPeople()
-            .then((peopleList) => {
-                this.setState({
-                    peopleList
-                });
-            })
-    }
 
     renderItems(arr) {
-        return arr.map(({id, name}) => {
+        return arr.map((item) => {
+            const {id} = item;
+            const label = this.props.renderItem(item);
             return (
-                <li className="list-group-item" key={id} onClick={() => this.props.onItemSelected(id)}>
-                    {name}
+                <li className="list-group-item" 
+                    key={id} 
+                    onClick={() => this.props.onItemSelected(id)}>
+                    {label}
                 </li>
             )
         })
     }
 
     render (){
-        const {peopleList} = this.state;
-        const items = this.renderItems(peopleList);
-        if (!peopleList){
-            return <Spinner />;
-        }
+
         return (
             <ul className="item-list list-group">
                 {items}
@@ -44,4 +30,37 @@ export default class ItemList extends Component{
         )
     }
 
+} 
+
+
+
+const withData = (View) => {
+    return class extends Component {
+        state = {
+            data: []
+        };
+    
+     
+    
+        componentDidMount(){
+            const {getData} = this.props;
+    
+            getData()
+                .then((data) => {
+                    this.setState({
+                        data
+                    });
+                })
+        }
+        render(){
+            const {data} = this.state;
+            
+            if (!data){
+                return <Spinner />;
+            }
+            return <View {...this.props} data={data} />;
+        }
+    };
 }
+
+export default withData(ItemList);

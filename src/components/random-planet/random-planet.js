@@ -1,23 +1,29 @@
 import React, {Component} from 'react';
-import './random-planet.js';
+import './random-planet.css';
 import SwapiService from '../../services/swapi-service';
 import Spinner from '../spinner/spinner';
 import ErrorIndicator from '../error-indicator/error-indicator';
+import ErrorButton from '../error-button/error-button';
+
 export default class RandomPlanet extends Component{
     swapiService = new SwapiService();
     state = {
         planet:{},
-        loading: true
+        loading: true,
+        hasError: false
     }  
 
     componentDidMount(){
         this.updatePlanet();
         this.interval = setInterval(this.updatePlanet,10000);
     }
-
     componentWillUnmount(){
         clearInterval(this.interval)
     }
+    componentDidCatch(){
+        this.setState({hasError:true});
+    }
+
     onPlanetLoaded = (planet) => {
         this.setState({planet, loading: false});
     };
@@ -38,6 +44,11 @@ export default class RandomPlanet extends Component{
     };
 
     render (){
+
+        if (this.state.hasError){
+            return <ErrorIndicator/>
+        } 
+
         const {planet, loading, error} = this.state;
         const hasData = !(loading || error);
 
@@ -45,14 +56,10 @@ export default class RandomPlanet extends Component{
         const spinner = loading ? <Spinner/> : null; 
         const content = hasData ? <PlanetView  planet = {planet}/> : null; 
    
-        return (
 
+
+        return (
             <div className="random-planet jumbotron rounded">
-                <button
-                    className="toggle-planet btn btn-warning btn-lg"
-                    onClick={this.updatePlanet}>
-                    Toggle Random Planet
-                </button>
                 {errorMessage}
                 {spinner}
                 {content}
@@ -70,15 +77,15 @@ const PlanetView = ({planet}) => {
                 <h4>{name}</h4>
                 <ul className="list-group list-group-flush">
                     <li className="list-group-item">
-                        <span className="term">Population</span>
+                        <span className="term">Population: </span>
                         <span>{population}</span>
                     </li>
                     <li className="list-group-item">
-                        <span className="term">Rotation Period</span>
+                        <span className="term">Rotation Period: </span>
                         <span>{rotationPeriod}</span>
                     </li>
                     <li className="list-group-item">
-                        <span className="term">Diameter</span>
+                        <span className="term">Diameter: </span>
                         <span>{diameter}</span>
                     </li>
                 </ul>
